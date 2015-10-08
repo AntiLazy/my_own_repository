@@ -3,6 +3,8 @@ package com.android.testhorizontalscrollview;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.android.ui.MatrixImageView;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.res.AssetManager;
@@ -15,7 +17,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -23,16 +27,28 @@ import android.widget.LinearLayout;
 
 public class MainActivity extends Activity {
 	private HorizontalScrollView horizontalScrollView;
-	private ImageView imageView2;
+	private MatrixImageView imageView2;
+	private Button button1;
+	private int degree = 25;
 	PointF middleF = new PointF();
 	Matrix	matrix = new Matrix();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        button1 = (Button)this.findViewById(R.id.button1);
+        button1.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				imageView2.setRotation(degree, true);
+				degree+=30;
+			}
+		});
         horizontalScrollView = (HorizontalScrollView)this.findViewById(R.id.horizontalScrollView1);
 //        LinearLayout layout = (LinearLayout)this.findViewById(R.id.horizonlayout);
-        imageView2 = (ImageView)this.findViewById(R.id.imageView2);
+        imageView2 = (MatrixImageView)this.findViewById(R.id.imageView2);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         for(int i = 0;i<50;i++) {
@@ -45,26 +61,27 @@ public class MainActivity extends Activity {
         	layout.addView(imageView);
         }
         horizontalScrollView.addView(layout);
-        imageView2.setImageBitmap(getBitmapFromAssets("scen006.jpg"));
+//        imageView2.setImageBitmap(getBitmapFromAssets("people.png"));
+        imageView2.setImageResource(R.drawable.people);
         matrix = imageView2.getImageMatrix();
-        imageView2.setOnTouchListener(new OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				try {
-					float degree = getRotationDegree(event);
-					Log.d("zejia.ye", "degree = "+degree);
-					matrix.postRotate(degree);
-					imageView2.setImageMatrix(matrix);
-					imageView2.invalidate();
-				} catch (IllegalArgumentException e) {
-					// TODO: handle exception
-				}
-
-				
-				return false;
-			}
-		});
+//        imageView2.setOnTouchListener(new OnTouchListener() {
+//			
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				try {
+//					float degree = getRotationDegree(event);
+//					Log.d("zejia.ye", "degree = "+degree);
+//					matrix.postRotate(degree);
+//					imageView2.setImageMatrix(matrix);
+//					imageView2.invalidate();
+//				} catch (IllegalArgumentException e) {
+//					// TODO: handle exception
+//				}
+//
+//				
+//				return false;
+//			}
+//		});
         
     }
     /**
