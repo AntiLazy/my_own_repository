@@ -24,6 +24,8 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class MainActivity extends Activity {
 	private HorizontalScrollView horizontalScrollView;
@@ -32,10 +34,14 @@ public class MainActivity extends Activity {
 	private int degree = 25;
 	PointF middleF = new PointF();
 	Matrix	matrix = new Matrix();
+	private SeekBar seekBar;
+	private int currentDegree = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        ImageView imageView1 = (ImageView)this.findViewById(R.id.imageView1);
+//        imageView1.setImageBitmap(oldRemeber(getBitmapFromAssets("people.png")));
         button1 = (Button)this.findViewById(R.id.button1);
         button1.setOnClickListener(new OnClickListener() {
 			
@@ -51,7 +57,7 @@ public class MainActivity extends Activity {
         imageView2 = (MatrixImageView)this.findViewById(R.id.imageView2);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.HORIZONTAL);
-        for(int i = 0;i<50;i++) {
+        for(int i = 0;i<2;i++) {
         	ImageButton imageView = new ImageButton(this);
         	imageView.setImageResource(R.drawable.test);
         	imageView.setClickable(true);
@@ -82,6 +88,31 @@ public class MainActivity extends Activity {
 //				return false;
 //			}
 //		});
+        this.seekBar = (SeekBar)this.findViewById(R.id.seekBar1);
+        this.seekBar.setMax(160);
+        this.seekBar.setProgress(80);
+        this.seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				
+				
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				int degree = progress - currentDegree - (seekBar.getMax()>>1);
+				
+				imageView2.setRotation(degree, true);
+			}
+		});
         
     }
     /**
@@ -119,5 +150,46 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-    
+    /**
+	 * 怀旧效果(相对之前做了优化快一倍)
+	 * @param bmp
+	 * @return
+	 */
+	private Bitmap oldRemeber(Bitmap bmp)
+	{
+		// 速度测试
+		long start = System.currentTimeMillis();
+		int width = bmp.getWidth();
+		int height = bmp.getHeight();
+		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+		int pixColor = 0;
+		int pixR = 0;
+		int pixG = 0;
+		int pixB = 0;
+		int newR = 0;
+		int newG = 0;
+		int newB = 0;
+		int[] pixels = new int[width * height];
+		bmp.getPixels(pixels, 0, width, 0, 0, width, height);
+		for (int i = 0; i < height; i++)
+		{
+			for (int k = 0; k < width; k++)
+			{
+				pixColor = pixels[width * i + k];
+				pixR = Color.red(pixColor);
+				pixG = Color.green(pixColor);
+				pixB = Color.blue(pixColor);
+				newR = (int) (0.393 * pixR + 0.769 * pixG + 0.189 * pixB);
+				newG = (int) (0.349 * pixR + 0.686 * pixG + 0.168 * pixB);
+				newB = (int) (0.272 * pixR + 0.534 * pixG + 0.131 * pixB);
+				int newColor = Color.argb(255, newR > 255 ? 255 : newR, newG > 255 ? 255 : newG, newB > 255 ? 255 : newB);
+				pixels[width * i + k] = newColor;
+			}
+		}
+		
+		bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+		long end = System.currentTimeMillis();
+		Log.d("may", "used time="+(end - start));
+		return bitmap;
+	}
 }

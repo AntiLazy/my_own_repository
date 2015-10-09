@@ -16,7 +16,7 @@
 
     <LinearLayout
         android:id="@+id/horizonlayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="17dp"
@@ -29,10 +29,10 @@
 	    android:text="旋转"
 	    android:layout_centerHorizontal="true"
 	    />"
-    <ImageView
+    <com.flaviofaria.kenburnsview.KenBurnsView
         android:id="@+id/imageView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_below="@+id/horizontalScrollView1"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="115dp"
@@ -42,9 +42,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/imageView1"
-        android:src="@drawable/pic"
+        android:src="@drawable/people"
         android:layout_centerHorizontal="true"
 
  />
+
+    <SeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/horizonlayout"
+        android:layout_alignLeft="@+id/horizontalScrollView1" />
 
 </RelativeLayout>

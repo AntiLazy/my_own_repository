@@ -407,10 +407,12 @@ public class MatrixImageView extends ImageView implements Rotatable{
 	        Drawable drawable = getDrawable();
 	        if (drawable == null) return;
 
-	        Rect bounds = drawable.getBounds();
-	        int w = bounds.right - bounds.left;
-	        int h = bounds.bottom - bounds.top;
-
+//	        Rect bounds = drawable.getBounds();
+//	        int w = bounds.right - bounds.left;
+//	        int h = bounds.bottom - bounds.top;
+	        int w = drawable.getIntrinsicWidth();
+	        int h = drawable.getIntrinsicHeight();
+	        
 	        if (w == 0 || h == 0) return; // nothing to draw
 
 	        if (mCurrentDegree != mTargetDegree) {
@@ -426,7 +428,16 @@ public class MatrixImageView extends ImageView implements Rotatable{
 	                mCurrentDegree = mTargetDegree;
 	            }
 	        }
-
+//	        int left = getPaddingLeft();
+//	        int top = getPaddingTop();
+//	        int right = getPaddingRight();
+//	        int bottom = getPaddingBottom();
+//	        int width = getWidth() - left - right;
+//	        int height = getHeight() - top - bottom;
+//	        canvas.translate(left + width / 2, top + height / 2);
+//	        canvas.rotate(-mCurrentDegree);
+//	        canvas.translate(-w / 2, -h / 2);
+//	        super.onDraw(canvas);
 	        int left = getPaddingLeft();
 	        int top = getPaddingTop();
 	        int right = getPaddingRight();
@@ -434,7 +445,7 @@ public class MatrixImageView extends ImageView implements Rotatable{
 	        int width = getWidth() - left - right;
 	        int height = getHeight() - top - bottom;
 
-	        int saveCount = canvas.getSaveCount();
+//	        int saveCount = canvas.getSaveCount();
 	        
 	        // Scale down the image first if required.
 	        if ((getScaleType() == ImageView.ScaleType.FIT_CENTER) &&
@@ -445,8 +456,10 @@ public class MatrixImageView extends ImageView implements Rotatable{
 	        canvas.translate(left + width / 2, top + height / 2);
 	        canvas.rotate(-mCurrentDegree);
 	        canvas.translate(-w / 2, -h / 2);
-	        drawable.draw(canvas);
-	        canvas.restoreToCount(saveCount);
+	        super.onDraw(canvas);
+//	        if(mMatrix!=null) canvas.concat(mMatrix);
+//	        drawable.draw(canvas);
+//	        canvas.restoreToCount(saveCount);
 	    }
 	 
 	 
