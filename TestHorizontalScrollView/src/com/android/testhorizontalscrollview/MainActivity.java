@@ -192,4 +192,5 @@ public class MainActivity extends Activity {
 		Log.d("may", "used time="+(end - start));
 		return bitmap;
 	}
+	
 }
