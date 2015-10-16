@@ -2,10 +2,14 @@ package com.example.mycrop;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -19,8 +23,11 @@ public class MainActivity extends Activity {
 	 @Override
 	 protected void onCreate(Bundle savedInstanceState) {
 	  super.onCreate(savedInstanceState);
+      requestWindowFeature(Window.FEATURE_NO_TITLE);
+      getWindow().setFormat(PixelFormat.TRANSLUCENT);
 	  setContentView(R.layout.activity_main);
 	  mView = (CropImageView) findViewById(R.id.cropimage);
+//	  BitmapFactory.decodeResource(res, id)
 	  mView.setDrawable(getResources().getDrawable(R.drawable.comp), 300,
 	    300);
 	  
@@ -51,8 +58,12 @@ public class MainActivity extends Activity {
 //				}
 //			});
 //			  thread.start();
+
 			Bitmap mBitmap= mView.getCropImage();
 			imageView.setImageBitmap(mBitmap);
+			RotateAnimation rAnima = new RotateAnimation(0, 60);//顺时针旋转70度
+			rAnima.setDuration(5000);
+			mView.startAnimation(rAnima);
 		}
 	});
 	  

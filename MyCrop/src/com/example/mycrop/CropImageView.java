@@ -10,7 +10,9 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RotateDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -51,7 +53,7 @@ public class CropImageView extends View {
 	 protected Rect mDrawableDst = new Rect();// \u56fe\u7247Rect
 	 protected Rect mDrawableFloat = new Rect();// \u6d6e\u5c42\u7684Rect
 	 protected boolean isFrist = true;
-	 private boolean isTouchInSquare = true;
+	 private boolean isTouchInSquare = true;//mark whether the touch point is in the rect
 
 	 protected Context mContext;
 
@@ -173,6 +175,9 @@ public class CropImageView extends View {
 	      break;
 
 	     case EDGE_MOVE_OUT:
+	    	 //move the image rect
+	    	 mDrawableDst.offset((int) dx, (int) dy);
+	    	 mDrawable.setBounds(mDrawableDst);
 	      break;
 	     }
 	     mDrawableFloat.sort();
@@ -185,7 +190,7 @@ public class CropImageView extends View {
 	  return true;
 	 }
 
-	 // \u6839\u636e\u521d\u89e6\u6478\u70b9\u5224\u65ad\u662f\u89e6\u6478\u7684Rect\u54ea\u4e00\u4e2a\u89d2
+	 // get the touch area,contains 4 angles,the area in the rect,the area out of rect.
 	 public int getTouch(int eventX, int eventY) {
 	  if (mFloatDrawable.getBounds().left <= eventX
 	    && eventX < (mFloatDrawable.getBounds().left + mFloatDrawable
@@ -244,6 +249,7 @@ public class CropImageView extends View {
 	  canvas.restore();
 	  // \u753b\u6d6e\u5c42
 	  mFloatDrawable.draw(canvas);
+	  checkBounds();
 	 }
 
 	 protected void configureBounds() {
@@ -264,7 +270,7 @@ public class CropImageView extends View {
 	   int right = left + w;
 	   int bottom = top + h;
 
-	   mDrawableSrc.set(left, top, right, bottom);
+	   mDrawableSrc.set(left, 0, right, bottom-top);
 	   mDrawableDst.set(mDrawableSrc);
 
 	   int floatWidth = dipTopx(mContext, cropWidth);
@@ -292,39 +298,66 @@ public class CropImageView extends View {
 	  mFloatDrawable.setBounds(mDrawableFloat);
 	 }
 
-	 // \u5728up\u4e8b\u4ef6\u4e2d\u8c03\u7528\u4e86\u8be5\u65b9\u6cd5\uff0c\u76ee\u7684\u662f\u68c0\u67e5\u662f\u5426\u628a\u6d6e\u5c42\u62d6\u51fa\u4e86\u5c4f\u5e55
+	 // check whether the bound is out of range
 	 protected void checkBounds() {
 	  int newLeft = mDrawableFloat.left;
 	  int newTop = mDrawableFloat.top;
-
+	  
+	  {
+		  
+		  //Rect  = mDrawable.getBounds();
+		  Log.d("zejia.ye", "left = "+mDrawableSrc.left+" top = "+mDrawableSrc.top+"right = "+mDrawableSrc.right+" bottom = "+mDrawableSrc.bottom);
+	  }
 	  boolean isChange = false;
-	  if (mDrawableFloat.left < getLeft()) {
-	   newLeft = getLeft();
-	   isChange = true;
-	  }
+//	  if (mDrawableFloat.left < getLeft()) {
+//	   newLeft = getLeft();
+//	   isChange = true;
+//	  }
+//
+//	  if (mDrawableFloat.top < getTop()) {
+//	   newTop = getTop();
+//	   isChange = true;
+//	  }
+//
+//	  if (mDrawableFloat.right > getRight()) {
+//	   newLeft = getRight() - mDrawableFloat.width();
+//	   isChange = true;
+//	  }
+//
+//	  if (mDrawableFloat.bottom > getBottom()) {
+//	   newTop = getBottom() - mDrawableFloat.height();
+//	   isChange = true;
+//	  }
+	  if (mDrawableFloat.left < mDrawableDst.left) {
+		  if(mDrawableDst.left - mDrawableFloat.left <=10) newLeft = mDrawableDst.left;
+		  else
+		   newLeft = mDrawableFloat.left+20;
+		   isChange = true;
+		  }
 
-	  if (mDrawableFloat.top < getTop()) {
-	   newTop = getTop();
-	   isChange = true;
-	  }
+		  if (mDrawableFloat.top < mDrawableDst.top) {
+			  if(mDrawableDst.top - mDrawableFloat.top <=10) newTop = mDrawableDst.top;
+			  else
+		   newTop = mDrawableFloat.top+20;
+		   isChange = true;
+		  }
 
-	  if (mDrawableFloat.right > getRight()) {
-	   newLeft = getRight() - mDrawableFloat.width();
-	   isChange = true;
-	  }
+		  if (mDrawableFloat.right > mDrawableDst.right) {
+		   newLeft = mDrawableFloat.left - 10;
+		   isChange = true;
+		  }
 
-	  if (mDrawableFloat.bottom > getBottom()) {
-	   newTop = getBottom() - mDrawableFloat.height();
-	   isChange = true;
-	  }
-
+		  if (mDrawableFloat.bottom > mDrawableDst.bottom) {
+		   newTop = mDrawableFloat.top - 10;
+		   isChange = true;
+		  }
+		  if(mDrawableFloat.width() > mDrawableDst.width()) mDrawableFloat.right = mDrawableFloat.left+mDrawableDst.width();
 	  mDrawableFloat.offsetTo(newLeft, newTop);
 	  if (isChange) {
 	   invalidate();
 	  }
 	 }
 
-	 // \u8fdb\u884c\u56fe\u7247\u7684\u88c1\u526a\uff0c\u6240\u8c13\u7684\u88c1\u526a\u5c31\u662f\u6839\u636eDrawable\u7684\u65b0\u7684\u5750\u6807\u5728\u753b\u5e03\u4e0a\u521b\u5efa\u4e00\u5f20\u65b0\u7684\u56fe\u7247
 	 public Bitmap getCropImage() {
 	  Bitmap tmpBitmap = Bitmap.createBitmap(getWidth(), getHeight(),
 	    Config.RGB_565);
