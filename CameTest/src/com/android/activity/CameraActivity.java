@@ -251,7 +251,7 @@ public class CameraActivity extends Activity implements OnClickListener,MediaRec
                 Log.d(TAG, e.toString());
             }
             
-            overridePendingTransition(R.anim.in_from_right, R.anim.out_from_left); 
+           // overridePendingTransition(R.anim.in_from_right, R.anim.out_from_left); 
             break;
         default:
             break;
