@@ -92,6 +92,7 @@ public class PicturePages extends Activity {
 			Intent intent = new Intent(PicturePages.this, PictureEditActivity.class);
 			//将图片地址作参数传递到编辑界面
 			intent.putExtra("picturePath", this.editedPicturePathString);
+			intent.putExtra("pictures", pictureList);
 			startActivity(intent);
 		}
 		
