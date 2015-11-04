@@ -119,6 +119,7 @@ public class ImageFilterBitmaps {
 		Canvas canvas = new Canvas(tmpBitmap);
 		//创建画笔
 		Paint paint = new Paint();
+//		paint.seta
 		paint.setColorFilter(colorFilter);
 		//在画布上以画笔绘制位图
 		canvas.drawBitmap(bitmap, 0, 0, paint);

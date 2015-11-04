@@ -28,13 +28,12 @@ public class CropImageView extends View {
 	 private final int STATUS_SINGLE = 1;
 	 private final int STATUS_MULTI_START = 2;
 	 private final int STATUS_MULTI_TOUCHING = 3;
-	 // current status,one pressed,two pressed and two pressing and move
+	 // \u5f53\u524d\u72b6\u6001
 	 private int mStatus = STATUS_SINGLE;
-	 private float mStartDistance;
-	 // the width and height of the crop rect,which is the mDrawableFloat
+	 // \u9ed8\u8ba4\u88c1\u526a\u7684\u5bbd\u9ad8
 	 private int cropWidth;
 	 private int cropHeight;
-	 // the pressed point kinds
+	 // \u6d6e\u5c42Drawable\u7684\u56db\u4e2a\u70b9
 	 private final int EDGE_LT = 1;
 	 private final int EDGE_RT = 2;
 	 private final int EDGE_LB = 3;
@@ -42,15 +41,14 @@ public class CropImageView extends View {
 	 private final int EDGE_MOVE_IN = 5;
 	 private final int EDGE_MOVE_OUT = 6;
 	 private final int EDGE_NONE = 7;
-/**
- * the pressed edge
- */
+
 	 public int currentEdge = EDGE_NONE;
 
 	 protected float oriRationWH = 0;
 	 protected final float maxZoomOut = 5.0f;
 	 protected final float minZoomIn = 0.333333f;
-	 
+	 private final int padding_num = 70;
+	 private boolean isMenuInfluence = false;
 	 
 	 private float[] mMatrixFloats = new float[] {  
 			 0.22f, 0.5f, 0.1f, 0, 0,  
@@ -72,16 +70,17 @@ public class CropImageView extends View {
 	}
 	protected FloatDrawable mFloatDrawable;
 
-	 protected Rect mDrawableSrc = new Rect();// the origin src drawable rect
-	 protected Rect mDrawableDst = new Rect();// the lastest drawable Rect
-	 protected Rect mDrawableFloat = new Rect();// the moving rect
+	 protected Rect mDrawableSrc = new Rect();// \u56fe\u7247Rect\u53d8\u6362\u65f6\u7684Rect
+	 protected Rect mDrawableDst = new Rect();// \u56fe\u7247Rect
+	 protected Rect mDrawableFloat = new Rect();// \u6d6e\u5c42\u7684Rect
 	 protected boolean isFrist = true;
 	 protected boolean isFingerDown = false;
 	 private boolean isTouchInSquare = true;//mark whether the touch point is in the rect
 
-	 private boolean isCropMode = false;
 	 protected Context mContext;
-
+	private boolean isCropEnable = false;
+	private float mStartDistance;
+	
 	 public CropImageView(Context context) {
 	  super(context);
 	  init(context);
@@ -127,9 +126,8 @@ public class CropImageView extends View {
 	  if (event.getPointerCount() > 1) {
 	   if (mStatus == STATUS_SINGLE) {
 	    mStatus = STATUS_MULTI_START;
-	    Log.d("zejia.ye", "x(0),y(0)="+event.getX(0)+","+event.getY(0));
-	    Log.d("zejia.ye", "x(1),y(1)="+event.getX(1)+","+event.getY(1));
 	    mStartDistance = distance(event);
+	    
 	   } else if (mStatus == STATUS_MULTI_START) {
 	    mStatus = STATUS_MULTI_TOUCHING;
 	   }
@@ -153,6 +151,7 @@ public class CropImageView extends View {
 	   isFingerDown = true;
 
 	   break;
+
 	  case MotionEvent.ACTION_UP:
 	   checkBounds();
 	   isFingerDown = false;
@@ -165,10 +164,9 @@ public class CropImageView extends View {
 
 	  case MotionEvent.ACTION_MOVE:
 	   if (mStatus == STATUS_MULTI_TOUCHING) {
+
 		   //two points is pressed,change the size of the drawable
 		   float movingDistance = distance(event);
-		   Log.d("zejia.ye", "mStartDistance = "+mStartDistance+" movingDistance = "+movingDistance);
-		   //get the 缩放 rate
 		   float scale = movingDistance / mStartDistance;
 		   mStartDistance = movingDistance;
 		   scale = checkScale(scale);
@@ -180,7 +178,7 @@ public class CropImageView extends View {
 
 	    mX_1 = event.getX();
 	    mY_1 = event.getY();
-	    // resize the rect
+	    // \u6839\u64da\u5f97\u5230\u7684\u90a3\u4e00\u4e2a\u89d2\uff0c\u5e76\u4e14\u53d8\u6362Rect
 	    if (!(dx == 0 && dy == 0)) {
 	     switch (currentEdge) {
 	     case EDGE_LT:
@@ -230,20 +228,7 @@ public class CropImageView extends View {
 
 	  return true;
 	 }
-	 /**
-	  * check the scale to prevent the drawable is smaller than the mDrawableSrc
-	  * @param scale
-	  * @return
-	  */
-	 private float checkScale(float scale) {
-		 float scaleWidth = mDrawableDst.width()*scale;
-		 float scaleHeight = mDrawableDst.height()*scale;
-		 if(scaleWidth < mDrawableSrc.width()||scaleHeight < mDrawableSrc.height())
-			 return 1f;
-		 if(scale>3f) scale = 2f;
-		 return scale;
-	 }
-	 
+
 	 private void resizeDrawable(float scale) {
 		 
 	     int width = ((int)(mDrawableDst.width() * scale)-mDrawableDst.width())>>1;
@@ -256,16 +241,43 @@ public class CropImageView extends View {
 		 invalidate();
 	 }
 	 
+	 /**
+	  * check the scale to prevent the drawable is smaller than the mDrawableSrc
+	  * @param scale
+	  * @return
+	  */
+	 private float checkScale(float scale) {
+		 float scaleWidth = mDrawableDst.width()*scale;
+		 float scaleHeight = mDrawableDst.height()*scale;
+		 if(scaleWidth < mDrawableSrc.width()||scaleHeight < mDrawableSrc.height())
+			 return mDrawableSrc.width() / scaleWidth;
+		 if(scale>3f) scale = 2f;
+		 return scale;
+	 }
+	 
 	 private float distance(MotionEvent event) {
 		 float dx = event.getX(1) - event.getX(0);
          float dy = event.getY(1) - event.getY(0);
          return (float)Math.sqrt(dx * dx + dy * dy);
 	 }
 	 
+	 
 	 // get the touch area,contains 4 angles,the area in the rect,the area out of rect.
 	 public int getTouch(int eventX, int eventY) {
-		 if(!isCropMode)
+		 Log.d("zejia", "eventX = "+eventX+" eventY = "+eventY);
+		 Log.d("zejia", "mFloatDrawable.getBounds().left = "+mFloatDrawable.getBounds().left);
+		 Log.d("zejia", "mFloatDrawable.getBounds().top = "+mFloatDrawable.getBounds().top);
+		 Log.d("zejia", "mFloatDrawable.getBounds().right = "+mFloatDrawable.getBounds().right);
+		 Log.d("zejia", "mFloatDrawable.getBounds().bottom = "+mFloatDrawable.getBounds().bottom);
+		 Log.d("zejia", "floatRect.left = "+mDrawableFloat.left);
+		 Log.d("zejia", "floatRect.top = "+mDrawableFloat.top);
+		 Log.d("zejia", "floatRect.right = "+mDrawableFloat.right);
+		 Log.d("zejia", "floatRect.bottom = "+mDrawableFloat.bottom);
+		 if(!isCropEnable) {
 			 return EDGE_MOVE_OUT;
+		 }
+		 
+		 
 	  if (mFloatDrawable.getBounds().left <= eventX
 	    && eventX < (mFloatDrawable.getBounds().left + mFloatDrawable
 	      .getBorderWidth())
@@ -294,11 +306,12 @@ public class CropImageView extends View {
 	      .getBorderHeight()) <= eventY
 	    && eventY < mFloatDrawable.getBounds().bottom) {
 	   return EDGE_RB;
-	 // } else if (mFloatDrawable.getBounds().contains(eventX, eventY)) {
-	  } else {
+	  } else if (mFloatDrawable.getBounds().contains(eventX, eventY)) {
 	   return EDGE_MOVE_IN;
-	  }
-	  //return EDGE_MOVE_OUT;
+	  } else if (mDrawableDst.contains(eventX, eventY)) {
+		  return EDGE_MOVE_OUT;
+	}
+	  return EDGE_NONE;
 	 }
 
 	 @Override
@@ -317,18 +330,21 @@ public class CropImageView extends View {
 //	  mDrawable.setColorFilter(colorFilter);
 	  // 绘制图片
 	  mDrawable.draw(canvas);
-	  if(isCropMode) {
-	  canvas.save();
-	  // 获得剪切框的补集
-	  canvas.clipRect(mDrawableFloat, Region.Op.DIFFERENCE);
-	  // 对补集上色
-	  if (isFingerDown) canvas.drawColor(Color.parseColor("#a0000000"),PorterDuff.Mode.SCREEN);
-	  else canvas.drawColor(Color.parseColor("#30302E"));
-	  canvas.restore();
-	  // 绘制剪切框
+	  
+	  if(isCropEnable) {
+		  
+		  canvas.save();
+		  // 获得剪切框的补集
+		  canvas.clipRect(mDrawableFloat, Region.Op.DIFFERENCE);
+		  // 对补集上色
+		  if (isFingerDown) canvas.drawColor(Color.parseColor("#a0000000"),PorterDuff.Mode.SCREEN);
+		  else canvas.drawColor(Color.parseColor("#30302E"));
+		  canvas.restore();
+		  // 绘制剪切框
 		  mFloatDrawable.draw(canvas);
+		  checkBounds();
 	  }
-	  checkBounds();
+	  
 	 }
 	 
 	 protected void configureBounds() {
@@ -490,4 +506,14 @@ public class CropImageView extends View {
 	 private void fitRect(){
 		 
 	 }
+
+	public void setCropEnable(boolean isCropEnable) {
+		this.isCropEnable = isCropEnable;
+		invalidate();
+	}
+
+	public void setCropRect(Rect cropRect) {
+		this.mDrawableFloat.set(cropRect);
+		
+	}
 	}

@@ -90,6 +90,7 @@ public class PicturePages extends Activity {
 		@Override
 		public void onClick(View v) {
 			Intent intent = new Intent(PicturePages.this, PictureEditActivity.class);
+//			Intent intent = new Intent(PicturePages.this, EditPicture.class);
 			//将图片地址作参数传递到编辑界面
 			intent.putExtra("picturePath", this.editedPicturePathString);
 			intent.putExtra("pictures", pictureList);

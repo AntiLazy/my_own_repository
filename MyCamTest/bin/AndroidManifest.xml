@@ -42,6 +42,8 @@
         <activity
             android:name="com.android.activity.PictureEditActivity"
             android:screenOrientation="portrait"></activity>
+        <activity 
+            android:name="com.android.activity.EditPicture"></activity>
     </application>
 
 </manifest>

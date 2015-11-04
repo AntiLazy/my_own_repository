@@ -225,8 +225,8 @@ public class CameraActivity extends Activity implements OnClickListener,MediaRec
            if(parameters.getSupportedAntibanding().contains(Parameters.ANTIBANDING_AUTO))
                parameters.setAntibanding(Parameters.ANTIBANDING_AUTO);
            Log.d("zejia.ye", "antibangding = "+parameters.getAntibanding()+"  FlashMode="+parameters.getFlashMode());
-               parameters.setPreviewSize(1216, 800);
-               parameters.setPictureSize(1216, 800);
+//               parameters.setPreviewSize(1216, 800);
+//               parameters.setPictureSize(1216, 800);
            //List<String> focusModeStrings = parameters.getSupporteFocusModes();
 //               parameters.setRotation(90);
                parameters.setRotation((this.getOrientation()));
